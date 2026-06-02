@@ -91,6 +91,7 @@ class OcrActivity : AppCompatActivity() {
     private fun runOcr(uri: Uri) {
         words.clear()
         layoutPdfButtons.visibility = View.GONE
+        txtStatus.text = "OCR 처리 중..."
 
         val image = InputImage.fromFilePath(this, uri)
         recognizer.process(image)
@@ -103,7 +104,11 @@ class OcrActivity : AppCompatActivity() {
                         words.add(OcrWord("\n"))
                     }
                 }
+                txtStatus.text = "인식 완료: ${words.count { it.text != "\n" }}개 단어"
                 recyclerWords.adapter?.notifyDataSetChanged()
+            }
+            .addOnFailureListener { e ->
+                txtStatus.text = "OCR 실패: ${e.localizedMessage}"
             }
     }
 
@@ -117,33 +122,47 @@ class OcrActivity : AppCompatActivity() {
             style = Paint.Style.FILL
         }
 
-        val page = pdfDocument.startPage(
-            PdfDocument.PageInfo.Builder(595, 842, 1).create()
-        )
-        val canvas: Canvas = page.canvas
-
-        var x = 40f
-        var y = 40f
+        val marginLeft = 40f
+        val marginRight = 520f
+        val marginTop = 40f
+        val lineHeight = 30f
+        val bottomLimit = 800f
         val space = textPaint.measureText(" ")
+
+        var pageNumber = 1
+        var page = pdfDocument.startPage(PdfDocument.PageInfo.Builder(595, 842, pageNumber).create())
+        var canvas: Canvas = page.canvas
+        var x = marginLeft
+        var y = marginTop
+
+        fun newPage() {
+            pdfDocument.finishPage(page)
+            pageNumber++
+            page = pdfDocument.startPage(PdfDocument.PageInfo.Builder(595, 842, pageNumber).create())
+            canvas = page.canvas
+            x = marginLeft
+            y = marginTop
+        }
 
         for (word in words) {
             if (word.text == "\n") {
-                x = 40f
-                y += 30f
+                x = marginLeft
+                y += lineHeight
+                if (y > bottomLimit) newPage()
                 continue
             }
 
             val drawText = if (type == "blank" && word.selected) "_____" else word.text
             val width = textPaint.measureText(drawText)
 
+            if (x + width > marginRight) {
+                x = marginLeft
+                y += lineHeight
+                if (y > bottomLimit) newPage()
+            }
+
             if (type == "highlight" && word.selected) {
-                canvas.drawRect(
-                    x,
-                    y - textPaint.textSize,
-                    x + width,
-                    y + 5,
-                    highlightPaint
-                )
+                canvas.drawRect(x, y - textPaint.textSize, x + width, y + 5, highlightPaint)
             }
 
             canvas.drawText(drawText, x, y, textPaint)
@@ -153,11 +172,6 @@ class OcrActivity : AppCompatActivity() {
             }
 
             x += width + space
-
-            if (x > 520f) {
-                x = 40f
-                y += 30f
-            }
         }
 
         pdfDocument.finishPage(page)
@@ -194,13 +208,15 @@ class OcrActivity : AppCompatActivity() {
 
         inner class VH(val txt: TextView) : RecyclerView.ViewHolder(txt)
 
+        private val displayWords get() = words.filter { it.text != "\n" }
+
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
             val view = layoutInflater.inflate(R.layout.item_word, parent, false) as TextView
             return VH(view)
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
-            val word = words[position]
+            val word = displayWords[position]
             holder.txt.text = word.text
             holder.txt.setBackgroundColor(
                 if (word.selected) 0xFFFFFF99.toInt() else 0x00000000
@@ -213,6 +229,6 @@ class OcrActivity : AppCompatActivity() {
             }
         }
 
-        override fun getItemCount(): Int = words.size
+        override fun getItemCount(): Int = displayWords.size
     }
 }
