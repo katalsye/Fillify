@@ -68,6 +68,17 @@
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
             android:contentDescription="선택한 사진" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressOcr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:indeterminate="true"
+            app:indicatorColor="?attr/colorPrimary"
+            app:indicatorSize="48dp"
+            app:trackThickness="4dp" />
     </FrameLayout>
 
     <TextView

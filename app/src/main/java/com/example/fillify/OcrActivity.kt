@@ -30,6 +30,7 @@ class OcrActivity : AppCompatActivity() {
     private lateinit var txtImageHint: TextView
     private lateinit var txtStatus: TextView
     private lateinit var txtScreenTitle: TextView
+    private lateinit var progressOcr: View
     private lateinit var recyclerWords: RecyclerView
     private lateinit var layoutActions: View
     private lateinit var txtSelectedCount: TextView
@@ -64,6 +65,7 @@ class OcrActivity : AppCompatActivity() {
         txtImageHint = findViewById(R.id.txtImageHint)
         txtStatus = findViewById(R.id.txtStatus)
         txtScreenTitle = findViewById(R.id.txtScreenTitle)
+        progressOcr = findViewById(R.id.progressOcr)
         recyclerWords = findViewById(R.id.recyclerWords)
         layoutActions = findViewById(R.id.layoutActions)
         txtSelectedCount = findViewById(R.id.txtSelectedCount)
@@ -163,6 +165,7 @@ class OcrActivity : AppCompatActivity() {
         displayWords.clear()
         layoutActions.visibility = View.GONE
         recyclerWords.adapter?.notifyDataSetChanged()
+        progressOcr.visibility = View.VISIBLE
 
         val image = InputImage.fromFilePath(this, uri)
         recognizer.process(image)
@@ -183,6 +186,9 @@ class OcrActivity : AppCompatActivity() {
             }
             .addOnFailureListener {
                 txtStatus.text = "인식에 실패했습니다: ${it.message}"
+            }
+            .addOnCompleteListener {
+                progressOcr.visibility = View.GONE
             }
     }
 
