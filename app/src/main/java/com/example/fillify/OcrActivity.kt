@@ -29,6 +29,7 @@ class OcrActivity : AppCompatActivity() {
     private lateinit var imageView: ImageView
     private lateinit var txtImageHint: TextView
     private lateinit var txtStatus: TextView
+    private lateinit var txtScreenTitle: TextView
     private lateinit var recyclerWords: RecyclerView
     private lateinit var layoutActions: View
     private lateinit var txtSelectedCount: TextView
@@ -40,6 +41,14 @@ class OcrActivity : AppCompatActivity() {
     private val displayWords = mutableListOf<StudyWord>()
 
     private var cameraImageUri: Uri? = null
+
+    /** 저장된 학습지 편집 모드일 때의 id·제목 (신규 작성이면 null) */
+    private var editingSheetId: String? = null
+    private var editingTitle: String? = null
+
+    companion object {
+        const val EXTRA_SHEET_ID = "extra_sheet_id"
+    }
 
     private val recognizer by lazy {
         TextRecognition.getClient(
@@ -54,6 +63,7 @@ class OcrActivity : AppCompatActivity() {
         imageView = findViewById(R.id.imageView)
         txtImageHint = findViewById(R.id.txtImageHint)
         txtStatus = findViewById(R.id.txtStatus)
+        txtScreenTitle = findViewById(R.id.txtScreenTitle)
         recyclerWords = findViewById(R.id.recyclerWords)
         layoutActions = findViewById(R.id.layoutActions)
         txtSelectedCount = findViewById(R.id.txtSelectedCount)
@@ -73,6 +83,26 @@ class OcrActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnBlankPdf).setOnClickListener {
             exportPdf(PdfExporter.Type.BLANK)
         }
+
+        intent.getStringExtra(EXTRA_SHEET_ID)?.let { loadForEdit(it) }
+    }
+
+    /** 저장된 학습지를 불러와 편집 모드로 전환 */
+    private fun loadForEdit(id: String) {
+        val sheet = StudyRepository.get(this, id) ?: return
+        editingSheetId = sheet.id
+        editingTitle = sheet.title
+
+        words.clear()
+        words.addAll(sheet.words.map { StudyWord(it.text, it.selected) })
+        displayWords.clear()
+        displayWords.addAll(words.filterNot { it.isLineBreak })
+        recyclerWords.adapter?.notifyDataSetChanged()
+
+        txtScreenTitle.text = "학습지 편집"
+        txtImageHint.text = "저장된 학습지를 편집 중입니다"
+        txtStatus.text = "단어를 탭해 빈칸을 수정하세요"
+        refreshActions()
     }
 
     // ---------- 이미지 입력 ----------
@@ -172,17 +202,24 @@ class OcrActivity : AppCompatActivity() {
             .take(30)
 
     private fun saveSheet() {
+        val editing = editingSheetId
         val input = EditText(this).apply {
             hint = "학습지 제목"
-            setText(suggestTitle())
+            setText(editingTitle ?: suggestTitle())
             setSelection(text.length)
         }
         AlertDialog.Builder(this)
-            .setTitle("학습지 저장")
+            .setTitle(if (editing != null) "학습지 수정" else "학습지 저장")
             .setView(input)
             .setPositiveButton("저장") { _, _ ->
-                StudyRepository.create(this, input.text.toString(), words)
-                Toast.makeText(this, "저장했습니다", Toast.LENGTH_SHORT).show()
+                if (editing != null) {
+                    StudyRepository.update(this, editing, input.text.toString(), words)
+                    Toast.makeText(this, "수정했습니다", Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    StudyRepository.create(this, input.text.toString(), words)
+                    Toast.makeText(this, "저장했습니다", Toast.LENGTH_SHORT).show()
+                }
             }
             .setNegativeButton("취소", null)
             .show()

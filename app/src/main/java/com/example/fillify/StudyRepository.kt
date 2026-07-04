@@ -46,6 +46,19 @@ object StudyRepository {
         return sheet
     }
 
+    /** 기존 학습지의 제목·단어를 갱신한다. id·생성시각은 유지. */
+    fun update(context: Context, id: String, title: String, words: List<StudyWord>) {
+        val all = loadAll(context)
+        val idx = all.indexOfFirst { it.id == id }
+        if (idx == -1) return
+        val old = all[idx]
+        all[idx] = old.copy(
+            title = title.ifBlank { old.title },
+            words = words.map { StudyWord(it.text, it.selected) }
+        )
+        persist(context, all)
+    }
+
     fun delete(context: Context, id: String) {
         val all = loadAll(context).filterNot { it.id == id }.toMutableList()
         persist(context, all)

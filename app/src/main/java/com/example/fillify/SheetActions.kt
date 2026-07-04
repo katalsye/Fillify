@@ -14,7 +14,7 @@ object SheetActions {
 
     /** @param onChanged 삭제 등으로 목록이 바뀌었을 때 호출 */
     fun showOptions(context: Context, sheet: StudySheet, onChanged: () -> Unit) {
-        val options = arrayOf("학습하기", "형광펜 PDF", "빈칸 PDF", "삭제")
+        val options = arrayOf("학습하기", "편집", "형광펜 PDF", "빈칸 PDF", "삭제")
         AlertDialog.Builder(context)
             .setTitle(sheet.title)
             .setItems(options) { _, which ->
@@ -24,9 +24,13 @@ object SheetActions {
                             .putExtra(QuizActivity.EXTRA_WORDS_JSON, Gson().toJson(sheet.words))
                             .putExtra(QuizActivity.EXTRA_TITLE, sheet.title)
                     )
-                    1 -> exportPdf(context, sheet, PdfExporter.Type.HIGHLIGHT)
-                    2 -> exportPdf(context, sheet, PdfExporter.Type.BLANK)
-                    3 -> confirmDelete(context, sheet, onChanged)
+                    1 -> context.startActivity(
+                        Intent(context, OcrActivity::class.java)
+                            .putExtra(OcrActivity.EXTRA_SHEET_ID, sheet.id)
+                    )
+                    2 -> exportPdf(context, sheet, PdfExporter.Type.HIGHLIGHT)
+                    3 -> exportPdf(context, sheet, PdfExporter.Type.BLANK)
+                    4 -> confirmDelete(context, sheet, onChanged)
                 }
             }
             .show()
