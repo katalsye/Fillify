@@ -14,7 +14,7 @@ object SheetActions {
 
     /** @param onChanged 삭제 등으로 목록이 바뀌었을 때 호출 */
     fun showOptions(context: Context, sheet: StudySheet, onChanged: () -> Unit) {
-        val options = arrayOf("학습하기", "편집", "형광펜 PDF", "빈칸 PDF", "삭제")
+        val options = arrayOf("학습하기", "편집", "형광펜 PDF", "빈칸 PDF", "공유", "삭제")
         AlertDialog.Builder(context)
             .setTitle(sheet.title)
             .setItems(options) { _, which ->
@@ -30,7 +30,22 @@ object SheetActions {
                     )
                     2 -> exportPdf(context, sheet, PdfExporter.Type.HIGHLIGHT)
                     3 -> exportPdf(context, sheet, PdfExporter.Type.BLANK)
-                    4 -> confirmDelete(context, sheet, onChanged)
+                    4 -> showShareOptions(context, sheet)
+                    5 -> confirmDelete(context, sheet, onChanged)
+                }
+            }
+            .show()
+    }
+
+    private fun showShareOptions(context: Context, sheet: StudySheet) {
+        val options = arrayOf("텍스트로 공유", "빈칸 PDF 공유", "형광펜 PDF 공유")
+        AlertDialog.Builder(context)
+            .setTitle("공유")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> ShareHelper.shareText(context, sheet)
+                    1 -> ShareHelper.sharePdf(context, sheet, PdfExporter.Type.BLANK)
+                    2 -> ShareHelper.sharePdf(context, sheet, PdfExporter.Type.HIGHLIGHT)
                 }
             }
             .show()
