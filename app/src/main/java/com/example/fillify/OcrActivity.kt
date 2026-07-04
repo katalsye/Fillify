@@ -85,6 +85,7 @@ class OcrActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnBlankPdf).setOnClickListener {
             exportPdf(PdfExporter.Type.BLANK)
         }
+        findViewById<Button>(R.id.btnClearSelection).setOnClickListener { clearSelection() }
 
         intent.getStringExtra(EXTRA_SHEET_ID)?.let { loadForEdit(it) }
     }
@@ -179,10 +180,17 @@ class OcrActivity : AppCompatActivity() {
                     }
                 }
                 displayWords.addAll(words.filterNot { it.isLineBreak })
+
+                // 조사 기반으로 핵심어 자동 추천
+                val suggested = WordSuggester.apply(words)
                 recyclerWords.adapter?.notifyDataSetChanged()
-                txtStatus.text =
-                    if (displayWords.isNotEmpty()) "단어를 탭해 빈칸으로 만들 부분을 선택하세요"
-                    else "인식된 글자가 없습니다. 다른 사진을 시도해 보세요"
+                refreshActions()
+
+                txtStatus.text = when {
+                    displayWords.isEmpty() -> "인식된 글자가 없습니다. 다른 사진을 시도해 보세요"
+                    suggested > 0 -> "핵심어를 자동 추천했어요 · 탭해서 조정하세요"
+                    else -> "단어를 탭해 빈칸으로 만들 부분을 선택하세요"
+                }
             }
             .addOnFailureListener {
                 txtStatus.text = "인식에 실패했습니다: ${it.message}"
@@ -198,6 +206,12 @@ class OcrActivity : AppCompatActivity() {
         val count = words.count { it.selected }
         layoutActions.visibility = if (count > 0) View.VISIBLE else View.GONE
         txtSelectedCount.text = "선택한 단어 ${count}개"
+    }
+
+    private fun clearSelection() {
+        words.forEach { it.selected = false }
+        recyclerWords.adapter?.notifyDataSetChanged()
+        refreshActions()
     }
 
     /** OCR 첫 줄을 제목 후보로 사용 (교과서·필기 사진은 보통 맨 위가 소제목) */
