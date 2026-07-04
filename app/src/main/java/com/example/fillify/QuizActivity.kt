@@ -9,7 +9,6 @@ import android.text.method.LinkMovementMethod
 import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -76,9 +75,11 @@ class QuizActivity : AppCompatActivity() {
 
     private fun render() {
         val builder = SpannableStringBuilder()
+        var firstLineEnd = -1
 
         for ((index, word) in words.withIndex()) {
             if (word.isLineBreak) {
+                if (firstLineEnd == -1) firstLineEnd = builder.length
                 builder.append("\n")
                 continue
             }
@@ -90,12 +91,11 @@ class QuizActivity : AppCompatActivity() {
                 builder.append(display)
                 val end = builder.length
 
-                // 빈칸 강조 (형광 배경 + 밑줄)
+                // 빈칸 강조 (형광 배경) — 밑줄은 ＿ 글자 한 줄로만 표시
                 builder.setSpan(
                     BackgroundColorSpan(ContextCompat.getColor(this, R.color.highlight)),
                     start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                builder.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 if (isRevealed) {
                     builder.setSpan(
                         StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -117,6 +117,14 @@ class QuizActivity : AppCompatActivity() {
                 builder.append(word.text)
             }
             builder.append(" ")
+        }
+
+        // 첫 줄(제목) 볼드
+        if (firstLineEnd == -1) firstLineEnd = builder.length
+        if (firstLineEnd > 0) {
+            builder.setSpan(
+                StyleSpan(Typeface.BOLD), 0, firstLineEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
 
         txtPassage.text = builder

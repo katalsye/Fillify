@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Environment
@@ -30,6 +31,10 @@ object PdfExporter {
 
         val pdfDocument = PdfDocument()
         val textPaint = Paint().apply { textSize = 14f }
+        val titlePaint = Paint().apply {
+            textSize = 16f
+            typeface = Typeface.DEFAULT_BOLD
+        }
         val highlightPaint = Paint().apply {
             color = 0xFFFFFF99.toInt()
             style = Paint.Style.FILL
@@ -61,16 +66,23 @@ object PdfExporter {
             y = marginTop
         }
 
+        // 첫 줄(제목)은 볼드로 그린다
+        var onFirstLine = true
+
         for (word in words) {
             if (word.isLineBreak) {
+                onFirstLine = false
                 x = marginLeft
                 y += lineHeight
                 if (y > bottomLimit) newPage()
                 continue
             }
 
-            val drawText = if (type == Type.BLANK && word.selected) "_____" else word.text
-            val width = textPaint.measureText(drawText)
+            val paint = if (onFirstLine) titlePaint else textPaint
+            val isBlank = type == Type.BLANK && word.selected
+
+            // 빈칸은 밑줄 한 줄만 (글자는 그리지 않고 폭만 확보)
+            val width = if (isBlank) textPaint.measureText("_____") else paint.measureText(word.text)
 
             // 그리기 전에 줄바꿈해 우측 경계 초과 방지
             if (x + width > marginRight) {
@@ -82,17 +94,17 @@ object PdfExporter {
             if (type == Type.HIGHLIGHT && word.selected) {
                 canvas.drawRect(
                     x,
-                    y - textPaint.textSize,
+                    y - paint.textSize,
                     x + width,
                     y + 5,
                     highlightPaint
                 )
             }
 
-            canvas.drawText(drawText, x, y, textPaint)
-
-            if (type == Type.BLANK && word.selected) {
+            if (isBlank) {
                 canvas.drawLine(x, y + 4, x + width, y + 4, textPaint)
+            } else {
+                canvas.drawText(word.text, x, y, paint)
             }
 
             x += width + space
