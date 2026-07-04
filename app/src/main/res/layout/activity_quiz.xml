@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="지문 · 빈칸을 탭하면 정답이 보입니다"
+        android:text="빈칸 탭: 정답 확인 → O(초록) → X(빨강)"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
@@ -64,14 +64,44 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnToggleAll"
+        android:id="@+id/btnRetryWrong"
         style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:paddingVertical="14dp"
-        android:text="모두 보기"
+        android:text="틀린 것만 다시 풀기"
         android:textSize="16sp"
+        android:visibility="gone"
         app:cornerRadius="100dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRevealAll"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:paddingVertical="14dp"
+            android:text="모두 보기"
+            app:cornerRadius="100dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReset"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:paddingVertical="14dp"
+            android:text="다시 풀기"
+            app:cornerRadius="100dp" />
+    </LinearLayout>
 
 </LinearLayout>

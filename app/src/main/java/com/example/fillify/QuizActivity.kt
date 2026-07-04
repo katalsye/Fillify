@@ -19,7 +19,7 @@ import com.google.gson.reflect.TypeToken
 
 /**
  * 앱 내 빈칸 채우기 학습 모드.
- * 선택된 단어는 빈칸으로 가려지고, 탭하면 정답이 공개된다.
+ * 빈칸을 탭하면 정답 확인 → O(맞음) → X(틀림) 순으로 순환하며 자가 채점한다.
  */
 class QuizActivity : AppCompatActivity() {
 
@@ -28,16 +28,21 @@ class QuizActivity : AppCompatActivity() {
         const val EXTRA_TITLE = "extra_title"
     }
 
+    /** 빈칸 상태: 가림 → 정답확인 → 맞음 → 틀림 (탭할 때마다 순환) */
+    private enum class BlankState { HIDDEN, REVEALED, CORRECT, WRONG }
+
     private lateinit var txtTitle: TextView
     private lateinit var txtProgress: TextView
     private lateinit var txtPassage: TextView
-    private lateinit var btnToggleAll: Button
+    private lateinit var btnRevealAll: Button
+    private lateinit var btnReset: Button
+    private lateinit var btnRetryWrong: Button
 
     private val words = mutableListOf<StudyWord>()
 
-    /** 빈칸(선택된 단어)의 words 인덱스 목록과 공개 여부 */
+    /** 빈칸(선택 단어)의 words 인덱스별 상태 */
     private val blankIndices = mutableListOf<Int>()
-    private val revealed = mutableMapOf<Int, Boolean>()
+    private val states = mutableMapOf<Int, BlankState>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +51,9 @@ class QuizActivity : AppCompatActivity() {
         txtTitle = findViewById(R.id.txtQuizTitle)
         txtProgress = findViewById(R.id.txtQuizProgress)
         txtPassage = findViewById(R.id.txtPassage)
-        btnToggleAll = findViewById(R.id.btnToggleAll)
+        btnRevealAll = findViewById(R.id.btnRevealAll)
+        btnReset = findViewById(R.id.btnReset)
+        btnRetryWrong = findViewById(R.id.btnRetryWrong)
 
         txtPassage.movementMethod = LinkMovementMethod.getInstance()
 
@@ -58,20 +65,53 @@ class QuizActivity : AppCompatActivity() {
         words.addAll(loaded)
 
         words.forEachIndexed { i, w -> if (w.selected && !w.isLineBreak) blankIndices.add(i) }
-        blankIndices.forEach { revealed[it] = false }
+        blankIndices.forEach { states[it] = BlankState.HIDDEN }
 
         txtTitle.text = intent.getStringExtra(EXTRA_TITLE) ?: "학습"
 
-        btnToggleAll.setOnClickListener { toggleAll() }
+        btnRevealAll.setOnClickListener { revealAll() }
+        btnReset.setOnClickListener { setAll(BlankState.HIDDEN) }
+        btnRetryWrong.setOnClickListener { retryWrong() }
 
         render()
     }
 
-    private fun toggleAll() {
-        val allShown = blankIndices.all { revealed[it] == true }
-        blankIndices.forEach { revealed[it] = !allShown }
+    /** 탭 한 번: 다음 상태로 순환 */
+    private fun cycle(index: Int) {
+        states[index] = when (states[index]) {
+            BlankState.HIDDEN -> BlankState.REVEALED
+            BlankState.REVEALED -> BlankState.CORRECT
+            BlankState.CORRECT -> BlankState.WRONG
+            else -> BlankState.HIDDEN
+        }
         render()
     }
+
+    /** 아직 가려진 빈칸만 정답 공개 (채점 결과는 유지) */
+    private fun revealAll() {
+        blankIndices.forEach { if (states[it] == BlankState.HIDDEN) states[it] = BlankState.REVEALED }
+        render()
+    }
+
+    private fun setAll(state: BlankState) {
+        blankIndices.forEach { states[it] = state }
+        render()
+    }
+
+    /** 틀린 빈칸만 다시 가려서 재도전 */
+    private fun retryWrong() {
+        blankIndices.forEach { if (states[it] == BlankState.WRONG) states[it] = BlankState.HIDDEN }
+        render()
+    }
+
+    private fun bgColorFor(state: BlankState): Int = ContextCompat.getColor(
+        this,
+        when (state) {
+            BlankState.CORRECT -> R.color.grade_correct
+            BlankState.WRONG -> R.color.grade_wrong
+            else -> R.color.highlight
+        }
+    )
 
     private fun render() {
         val builder = SpannableStringBuilder()
@@ -85,28 +125,27 @@ class QuizActivity : AppCompatActivity() {
             }
 
             if (word.selected) {
-                val isRevealed = revealed[index] == true
-                val display = if (isRevealed) word.text else "＿".repeat(word.text.length.coerceAtLeast(2))
+                val state = states[index] ?: BlankState.HIDDEN
+                val shown = state != BlankState.HIDDEN
+                val display =
+                    if (shown) word.text else "＿".repeat(word.text.length.coerceAtLeast(2))
                 val start = builder.length
                 builder.append(display)
                 val end = builder.length
 
-                // 빈칸 강조 (형광 배경) — 밑줄은 ＿ 글자 한 줄로만 표시
+                // 상태별 배경색 (가림/확인=노랑, 맞음=초록, 틀림=빨강)
                 builder.setSpan(
-                    BackgroundColorSpan(ContextCompat.getColor(this, R.color.highlight)),
+                    BackgroundColorSpan(bgColorFor(state)),
                     start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                if (isRevealed) {
+                if (shown) {
                     builder.setSpan(
                         StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                 }
 
                 builder.setSpan(object : ClickableSpan() {
-                    override fun onClick(widget: View) {
-                        revealed[index] = !(revealed[index] ?: false)
-                        render()
-                    }
+                    override fun onClick(widget: View) = cycle(index)
 
                     override fun updateDrawState(ds: android.text.TextPaint) {
                         ds.color = Color.BLACK
@@ -129,10 +168,13 @@ class QuizActivity : AppCompatActivity() {
 
         txtPassage.text = builder
 
-        val shown = blankIndices.count { revealed[it] == true }
         val total = blankIndices.size
-        txtProgress.text = "정답 ${total}개 중 ${shown}개 확인"
-        btnToggleAll.text =
-            if (total > 0 && blankIndices.all { revealed[it] == true }) "모두 가리기" else "모두 보기"
+        val correct = states.values.count { it == BlankState.CORRECT }
+        val wrong = states.values.count { it == BlankState.WRONG }
+        txtProgress.text = "맞음 ${correct} · 틀림 ${wrong} · 전체 ${total}"
+
+        val allShown = total > 0 && blankIndices.none { states[it] == BlankState.HIDDEN }
+        btnRevealAll.isEnabled = !allShown
+        btnRetryWrong.visibility = if (wrong > 0) View.VISIBLE else View.GONE
     }
 }
