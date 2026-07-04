@@ -164,8 +164,19 @@ class OcrActivity : AppCompatActivity() {
         txtSelectedCount.text = "선택한 단어 ${count}개"
     }
 
+    /** OCR 첫 줄을 제목 후보로 사용 (교과서·필기 사진은 보통 맨 위가 소제목) */
+    private fun suggestTitle(): String =
+        words.takeWhile { !it.isLineBreak }
+            .joinToString(" ") { it.text }
+            .trim()
+            .take(30)
+
     private fun saveSheet() {
-        val input = EditText(this).apply { hint = "학습지 제목" }
+        val input = EditText(this).apply {
+            hint = "학습지 제목"
+            setText(suggestTitle())
+            setSelection(text.length)
+        }
         AlertDialog.Builder(this)
             .setTitle("학습지 저장")
             .setView(input)
@@ -182,7 +193,7 @@ class OcrActivity : AppCompatActivity() {
         startActivity(
             Intent(this, QuizActivity::class.java)
                 .putExtra(QuizActivity.EXTRA_WORDS_JSON, json)
-                .putExtra(QuizActivity.EXTRA_TITLE, "학습")
+                .putExtra(QuizActivity.EXTRA_TITLE, suggestTitle().ifBlank { "학습" })
         )
     }
 
