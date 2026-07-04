@@ -1,7 +1,37 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.Fillify" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Primary: 세이지 그린 (다크에서 밝게) -->
+        <item name="colorPrimary">@color/sage</item>
+        <item name="colorOnPrimary">#1C2912</item>
+        <item name="colorPrimaryContainer">@color/sage_container</item>
+        <item name="colorOnPrimaryContainer">@color/sage_on_container</item>
+
+        <item name="colorSecondary">@color/sage_light</item>
+        <item name="colorOnSecondary">#1C2912</item>
+        <item name="colorSecondaryContainer">@color/sage_container</item>
+        <item name="colorOnSecondaryContainer">@color/sage_on_container</item>
+
+        <!-- Tertiary / Accent: 형광 노랑 -->
+        <item name="colorTertiary">@color/highlight_deep</item>
+        <item name="colorOnTertiary">@color/highlight_on</item>
+        <item name="colorTertiaryContainer">#5A4A00</item>
+        <item name="colorOnTertiaryContainer">@color/highlight</item>
+
+        <item name="android:colorBackground">@color/surface_light</item>
+        <item name="colorOnBackground">@color/on_surface_light</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorOnSurface">@color/on_surface_light</item>
+        <item name="colorSurfaceVariant">@color/surface_variant_light</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_muted_light</item>
+        <item name="colorSurfaceContainer">@color/surface_container_light</item>
+        <item name="colorSurfaceContainerLow">@color/surface_container_light</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_variant_light</item>
+
+        <item name="colorOutline">@color/outline_light</item>
+        <item name="colorOutlineVariant">@color/surface_variant_light</item>
+        <item name="colorError">@color/error_light</item>
+
+        <item name="android:statusBarColor">@color/surface_light</item>
     </style>
 </resources>

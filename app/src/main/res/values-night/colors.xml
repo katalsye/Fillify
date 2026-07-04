@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fillify 브랜드 팔레트 (다크) -->
+    <color name="sage">#9DC169</color>
+    <color name="sage_light">#CBDDA6</color>
+    <color name="sage_container">#465C29</color>
+    <color name="sage_on_container">#CBDDA6</color>
+
+    <color name="highlight">#FFF3B0</color>
+    <color name="highlight_deep">#F2DE7A</color>
+    <color name="highlight_on">#4A3D00</color>
+
+    <color name="surface_light">#1C1B1F</color>
+    <color name="surface_variant_light">#3B3941</color>
+    <color name="surface_container_light">#232228</color>
+    <color name="outline_light">#4A4650</color>
+    <color name="on_surface_light">#E9E3EB</color>
+    <color name="on_surface_muted_light">#C7C2CF</color>
+    <color name="error_light">#FFB4AB</color>
+</resources>

@@ -2,4 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Fillify 브랜드 팔레트 (라이트) -->
+    <color name="sage">#91B063</color>
+    <color name="sage_light">#9DC169</color>
+    <color name="sage_container">#E8EFD9</color>
+    <color name="sage_on_container">#333D26</color>
+
+    <color name="highlight">#FFF3B0</color>       <!-- 형광펜 노랑 -->
+    <color name="highlight_deep">#F2DE7A</color>
+    <color name="highlight_on">#4A3D00</color>
+
+    <color name="surface_light">#FCFBF7</color>    <!-- 따뜻한 오프화이트 -->
+    <color name="surface_variant_light">#EAE8E0</color>
+    <color name="surface_container_light">#F1EFE7</color>
+    <color name="outline_light">#DFDCD3</color>
+    <color name="on_surface_light">#1C1B1F</color>
+    <color name="on_surface_muted_light">#847F8B</color>
+    <color name="error_light">#B3261E</color>
 </resources>

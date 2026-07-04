@@ -52,4 +52,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }

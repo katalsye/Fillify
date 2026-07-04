@@ -12,8 +12,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.btnStartOcr).setOnClickListener {
-            val intent = Intent(this, OcrActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, OcrActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btnLibrary).setOnClickListener {
+            startActivity(Intent(this, LibraryActivity::class.java))
         }
     }
 }

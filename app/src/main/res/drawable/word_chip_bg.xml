@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 선택됨: 형광 노랑 채움 -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/highlight" />
+            <corners android:radius="100dp" />
+        </shape>
+    </item>
+    <!-- 기본: 서피스 배경 + 외곽선 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/surface_container_light" />
+            <stroke android:width="1dp" android:color="@color/outline_light" />
+            <corners android:radius="100dp" />
+        </shape>
+    </item>
+</selector>

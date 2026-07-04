@@ -4,6 +4,11 @@
     android:id="@+id/txtWord"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:textSize="14sp"
-    android:background="@android:color/transparent"/>
+    android:layout_margin="4dp"
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="@drawable/word_chip_bg"
+    android:textColor="@color/word_chip_text"
+    android:textAppearance="@style/TextAppearance.Fillify.Chip" />

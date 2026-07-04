@@ -5,19 +5,64 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:padding="24dp"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btnStartOcr"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/txtAppTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OCR 시작"
-
+        android:text="Fillify"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="52sp"
+        android:textStyle="bold"
+        android:letterSpacing="-0.02"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/txtTagline"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-        android:layout_marginHorizontal="32dp" />
+    <TextView
+        android:id="@+id/txtTagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="사진 한 장으로 만드는\n나만의 문제집"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtAppTitle"
+        app:layout_constraintBottom_toTopOf="@id/btnStartOcr" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStartOcr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:paddingVertical="16dp"
+        android:text="학습지 만들기"
+        android:textSize="16sp"
+        app:cornerRadius="100dp"
+        app:layout_constraintTop_toBottomOf="@id/txtTagline"
+        app:layout_constraintBottom_toTopOf="@id/btnLibrary"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLibrary"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:paddingVertical="16dp"
+        android:text="내 학습지"
+        android:textSize="16sp"
+        app:cornerRadius="100dp"
+        app:layout_constraintTop_toBottomOf="@id/btnStartOcr"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
